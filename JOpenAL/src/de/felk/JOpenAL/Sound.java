@@ -18,8 +18,7 @@ public class Sound {
 	private int selectedBuffer = 0;
 	public int priority = PRIORITY_MODERATE;
 
-	private Vector position;
-	private Vector velocity;
+	private float posX, posY, posZ, velX, velY, velZ;
 	private float gain = 1f;
 	private float pitch = 1f;
 	private boolean looping = false;
@@ -27,11 +26,11 @@ public class Sound {
 	private Random random = new Random();
 	private SoundCategory category;
 
-	public Sound(SoundCategory category, Vector position, Vector velocity, String... filenames) {
-		this(category, filenames, position, velocity, false, 1f, 1f);
+	public Sound(SoundCategory category, float posX, float posY, float posZ, String... filenames) {
+		this(category, filenames, posX, posY, posZ, 0, 0, 0, false, 1f, 1f);
 	}
 
-	public Sound(SoundCategory category, String[] filenames, Vector position, Vector velocity, boolean looping, float gain, float pitch) {
+	public Sound(SoundCategory category, String[] filenames, float posX, float posY, float posZ, float velX, float velY, float velZ, boolean looping, float gain, float pitch) {
 		try {
 			this.buffers = ALBufferBank.getBuffers(filenames);
 		} catch (OpenALException | IOException | LWJGLException e) {
@@ -39,8 +38,12 @@ public class Sound {
 			e.printStackTrace();
 		}
 		this.category = category;
-		this.position = position;
-		this.velocity = velocity;
+		this.posX = posX;
+		this.posY = posY;
+		this.posZ = posZ;
+		this.velX = velX;
+		this.velY = velY;
+		this.velZ = velZ;
 		this.looping = looping;
 		this.gain = gain;
 		this.pitch = pitch;
@@ -102,11 +105,14 @@ public class Sound {
 		setLooping(looping);
 		setOffset(offset);
 		setPitch(pitch);
-		setPosition(position);
-		setVelocity(velocity);
-		if (isPlaying()) play();
-		if (isPaused()) pause();
-		if (isStopped()) stop();
+		setPosition(posX, posY, posZ);
+		setVelocity(velX, velY, velZ);
+		if (isPlaying())
+			play();
+		if (isPaused())
+			pause();
+		if (isStopped())
+			stop();
 	}
 
 	public ALBuffer[] getBuffers() {
@@ -122,22 +128,42 @@ public class Sound {
 		getSource().setBuffer(buffers[selectedBuffer]);
 	}
 
-	public Vector getPosition() {
-		return position;
+	public float getPositionX() {
+		return posX;
 	}
 
-	public void setPosition(Vector position) {
-		getSource().setPosition(position);
-		this.position = position;
+	public float getPositionY() {
+		return posY;
 	}
 
-	public Vector getVelocity() {
-		return velocity;
+	public float getPositionZ() {
+		return posZ;
 	}
 
-	public void setVelocity(Vector velocity) {
-		getSource().setVelocity(velocity);
-		this.velocity = velocity;
+	public void setPosition(float posX, float posY, float posZ) {
+		getSource().setPosition(posX, posY, posZ);
+		this.posX = posX;
+		this.posY = posY;
+		this.posZ = posZ;
+	}
+
+	public float getVelocityX() {
+		return velX;
+	}
+
+	public float getVelocityY() {
+		return velY;
+	}
+
+	public float getVelocityZ() {
+		return velZ;
+	}
+
+	public void setVelocity(float velX, float velY, float velZ) {
+		getSource().setVelocity(velX, velY, velZ);
+		this.velX = velX;
+		this.velY = velY;
+		this.velZ = velZ;
 	}
 
 	public float getGain() {

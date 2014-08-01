@@ -108,12 +108,12 @@ public class ALSource {
 		return buffer;
 	}
 
-	public void setPosition(Vector position) {
-		ALHelper.setPosition(sourceID, position);
+	public void setPosition(float posX, float posY, float posZ) {
+		ALHelper.setPosition(sourceID, posX, posY, posZ);
 	}
 
-	public void setVelocity(Vector velocity) {
-		ALHelper.setVelocity(sourceID, velocity);
+	public void setVelocity(float velX, float velY, float velZ) {
+		ALHelper.setVelocity(sourceID, velX, velY, velZ);
 	}
 
 	public void setGain(float gain) {

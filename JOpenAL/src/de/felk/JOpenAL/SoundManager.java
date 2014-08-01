@@ -13,7 +13,7 @@ public class SoundManager {
 	// Fill this with filenames and call preLoadSounds() somewhere at the start if you want to load sounds before first use
 	private static ArrayList<String> preLoadedFiles = new ArrayList<String>();
 
-	private static Vector lastListenerPosition;
+	private static float lastListenerPosX, lastListenerPosY, lastListenerPosZ;
 	private static float lastUpdateTime = System.nanoTime() / 1000000000;
 	public static final int LISTENER_HEIGHT = 2; // since this game is 2D, the listener is considered hovering LISTENER_HEIGHT meters above the world
 	public static final float DEFAULT_ROLLOFF_FACTOR = 0.2f; // how fast sounds get silent with increasing distance (0 = always same volume)
@@ -22,13 +22,13 @@ public class SoundManager {
 	static {
 		// Create OpenAL context, if not already done
 		// Other classes MIGHT have static sound objects
-		// and since they read in a buffer, they cause a early AL context creation 
+		// and since they read in a buffer, they cause a early AL context creation
 		SoundManager.createAL();
 
 		// Checks if the local implementation of OpenAL supports direct .ogg input
 		// This sound API converts ogg vorbis files to PCM data via JOrbis anyway,
 		// because OpenAL dropped the support on this
-		//System.out.println(".ogg sound extension available: " + ALHelper.initVorbisExtension());
+		// System.out.println(".ogg sound extension available: " + ALHelper.initVorbisExtension());
 
 		// Gets some attributes from the current sound device
 		ALHelper.readDeviceAttributes();
@@ -43,7 +43,8 @@ public class SoundManager {
 
 	/** creates the OpenAL Context, if it isn't already created */
 	public static void createAL() {
-		if (SoundManager.alCreated) return;
+		if (SoundManager.alCreated)
+			return;
 		try {
 			AL.create(); // quick and easy way to initialize OpenAL with the default audio device
 			alCreated = true;
@@ -58,7 +59,7 @@ public class SoundManager {
 			preLoadedFiles.add(s);
 		}
 	}
-	
+
 	public static void clearPreLoadSounds() {
 		preLoadedFiles.clear();
 	}
@@ -106,20 +107,19 @@ public class SoundManager {
 	/**
 	 * This function is the lazy alternative to setListener. It assumes the listener's "eyes" are looking towards z+ with the "head" pointing towards y-. It also calculates the listener's velocity on its own by delta position
 	 */
-	public static void recalculateListener(Vector position) {
+	public static void recalculateListener(float posX, float posY, float posZ) {
 
 		float time = (float) System.nanoTime() / 1000000000;
 		float elapsedTime = time - lastUpdateTime;
 		if (elapsedTime > 0) {
-			Vector velocity;
-			if (lastListenerPosition == null) {
-				velocity = position.multiply(1 / elapsedTime);
-			} else {
-				velocity = position.subtracted(lastListenerPosition).multiply(1 / elapsedTime);
-			}
+			float velX = (posX - lastListenerPosX) / elapsedTime;
+			float velY = (posY - lastListenerPosY) / elapsedTime;
+			float velZ = (posZ - lastListenerPosZ) / elapsedTime;
 			lastUpdateTime = time;
-			lastListenerPosition = position.clone();
-			SoundManager.setListener(new float[] { position.getX(), position.getY(), LISTENER_HEIGHT }, new float[] { velocity.getX(), velocity.getY(), 0 }, new float[] { 0, 0, 1 }, new float[] { 0, -1, 0 });
+			lastListenerPosX = posX;
+			lastListenerPosY = posY;
+			lastListenerPosZ = posZ;
+			SoundManager.setListener(new float[] { posX, posY, posZ }, new float[] { velX, velY, velZ }, new float[] { 0, 0, 1 }, new float[] { 0, -1, 0 });
 		}
 
 	}

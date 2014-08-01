@@ -107,13 +107,13 @@ public class ALHelper {
 		return result;
 	}
 
-	public static void setPosition(int sourceID, Vector position) throws OpenALException {
-		alSource3f(sourceID, AL_POSITION, position.getX(), position.getY(), 0);
+	public static void setPosition(int sourceID, float posX, float posY, float posZ) throws OpenALException {
+		alSource3f(sourceID, AL_POSITION, posX, posY, posZ);
 		checkALError();
 	}
 
-	public static void setVelocity(int sourceID, Vector velocity) throws OpenALException {
-		alSource3f(sourceID, AL_VELOCITY, velocity.getX(), velocity.getY(), 0);
+	public static void setVelocity(int sourceID, float velX, float velY, float velZ) throws OpenALException {
+		alSource3f(sourceID, AL_VELOCITY, velX, velY, velZ);
 		checkALError();
 	}
 
