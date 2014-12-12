@@ -6,7 +6,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
+
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.openal.AL10;
@@ -43,11 +49,14 @@ public class ALBufferBank {
 		case "ogg":
 			setVorbisFile(id, file);
 			break;
+		case "mp3":
+			setMpegFile(id, file);
+			break;
 		default:
 			System.out.println("did not recognize extension for: " + file.getName() + ", allowed extensions: .wav .ogg");
 			throw new IOException();
 		}
-
+		
 		int size = ALHelper.getBufferSize(id);
 		int channels = ALHelper.getBufferChannels(id);
 		buffers.put(file.getName(), new ALBuffer(id, size, channels));
@@ -85,6 +94,37 @@ public class ALBufferBank {
 		ALHelper.setBuffer(bufferID, oggData.channels > 1 ? AL10.AL_FORMAT_STEREO16 : AL10.AL_FORMAT_MONO16, oggData.data, oggData.rate);
 
 		inputStream.close();
+	}
+	
+	private static void setMpegFile(int bufferID, File file) {
+		AudioInputStream in = null;
+		try {
+			in = AudioSystem.getAudioInputStream(file);
+		} catch (UnsupportedAudioFileException | IOException e) {
+			e.printStackTrace();
+			return;
+		}
+		AudioInputStream din = null;
+		AudioFormat baseFormat = in.getFormat();
+		AudioFormat decodedFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 
+		                                            baseFormat.getSampleRate(),
+		                                            16,
+		                                            baseFormat.getChannels(),
+		                                            baseFormat.getChannels() * 2,
+		                                            baseFormat.getSampleRate(),
+		                                            false);
+		din = AudioSystem.getAudioInputStream(decodedFormat, in);
+		ByteBuffer buffer = null;
+		try {
+			buffer = ByteBuffer.allocate(din.available());
+			int b;
+			while ((b = din.read()) != -1) buffer.putInt(b);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
+		}
+		buffer.flip();
+		ALHelper.setBuffer(bufferID, AL10.AL_FORMAT_STEREO16, buffer, (int) decodedFormat.getSampleRate());
 	}
 
 	/** Returns the lowercase file extension of the given File (for example "ogg")*/

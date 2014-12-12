@@ -49,7 +49,7 @@ public class Sound {
 		this.pitch = pitch;
 	}
 
-	public void setUncoupled() {
+	void setUncoupled() {
 		stop();
 		source = null;
 	}
@@ -90,7 +90,7 @@ public class Sound {
 		return getSource().isPlaying();
 	}
 
-	public ALSource getSource() {
+	ALSource getSource() {
 		if (source == null) {
 			source = SoundManager.getFreeSource(priority);
 			source.couple(this);
@@ -99,7 +99,7 @@ public class Sound {
 		return source;
 	}
 
-	public void initSource() {
+	void initSource() {
 		selectBuffer(selectedBuffer);
 		setGain(gain);
 		setLooping(looping);
@@ -115,15 +115,15 @@ public class Sound {
 			stop();
 	}
 
-	public ALBuffer[] getBuffers() {
+	ALBuffer[] getBuffers() {
 		return buffers;
 	}
 
-	public ALBuffer getSelectedBuffer() {
+	ALBuffer getSelectedBuffer() {
 		return buffers[selectedBuffer];
 	}
 
-	private void selectBuffer(int buffer) {
+	void selectBuffer(int buffer) {
 		this.selectedBuffer = buffer;
 		getSource().setBuffer(buffers[selectedBuffer]);
 	}
